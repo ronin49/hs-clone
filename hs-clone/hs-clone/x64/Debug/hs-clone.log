@@ -1,2 +1,9 @@
 ﻿  hs-clone.cpp
-  hs-clone.vcxproj -> C:\Users\Alexandr\source\repos\hs-clone\x64\Debug\hs-clone.exe
+C:\Users\Alexandr\source\repos\hs-clone\hs-clone\hs-clone.cpp(120,5): error C2360: пропуск инициализации "hCursor" из-за метки "case"
+      C:\Users\Alexandr\source\repos\hs-clone\hs-clone\hs-clone.cpp(113,17):
+       см. объявление "hCursor"
+  
+C:\Users\Alexandr\source\repos\hs-clone\hs-clone\hs-clone.cpp(125,5): error C2361: пропуск инициализации "hCursor" из-за метки "default"
+      C:\Users\Alexandr\source\repos\hs-clone\hs-clone\hs-clone.cpp(113,17):
+       см. объявление "hCursor"
+  
