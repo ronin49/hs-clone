@@ -6,44 +6,69 @@
 
 using namespace Gdiplus;
 
-LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
-    static Image* image = nullptr;
+// Глобальные переменные
+Image* image = nullptr; // Изображение поля
+Image* cardImage = nullptr; // Изображение карты
+POINT cursorPos; // Позиция курсора
 
+LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
     switch (uMsg) {
     case WM_CREATE:
-        // Load the image
+        // Загружаем изображение поля
         image = new Image(L"Images\\field.png");
         if (image->GetLastStatus() != Ok) {
-            MessageBox(hwnd, L"Не удалось загрузить изображение!", L"Ошибка", MB_OK);
             delete image;
             image = nullptr;
+        }
+        // Загружаем изображение карты
+        cardImage = new Image(L"Images\\card.png");
+        if (cardImage->GetLastStatus() != Ok) {
+            delete cardImage;
+            cardImage = nullptr;
         }
         break;
     case WM_PAINT:
     {
         PAINTSTRUCT ps;
         HDC hdc = BeginPaint(hwnd, &ps);
-        if (image) {
-            Graphics graphics(hdc);
-            // Get client area dimensions
-            RECT clientRect;
-            GetClientRect(hwnd, &clientRect);
-            int width = clientRect.right - clientRect.left;
-            int height = clientRect.bottom - clientRect.top;
+        Graphics graphics(hdc);
 
-            // Draw the image scaled to the window size
+        // Получаем размеры клиентской области
+        RECT clientRect;
+        GetClientRect(hwnd, &clientRect);
+        int width = clientRect.right - clientRect.left;
+        int height = clientRect.bottom - clientRect.top;
+
+        // Рисуем изображение поля, масштабируя его под размеры окна
+        if (image) {
             graphics.DrawImage(image, 0, 0, width, height);
         }
+
+        // Рисуем изображение карты под курсором
+        if (cardImage) {
+            // Явное преобразование типов для устранения неоднозначности
+            int cardX = cursorPos.x - cardImage->GetWidth() / 2;
+            int cardY = cursorPos.y - cardImage->GetHeight() / 2;
+            graphics.DrawImage(cardImage, static_cast<float>(cardX), static_cast<float>(cardY), static_cast<float>(cardImage->GetWidth()), static_cast<float>(cardImage->GetHeight()));
+        }
+
         EndPaint(hwnd, &ps);
     }
     break;
     case WM_SIZE:
-        // Handle window resizing
-        InvalidateRect(hwnd, NULL, TRUE); // Request a repaint
+        // Обрабатываем изменение размера окна
+        InvalidateRect(hwnd, NULL, TRUE); // Запрашиваем перерисовку
         break;
     case WM_DESTROY:
-        delete image; // Free memory
+        delete image; // Освобождаем память
+        delete cardImage; // Освобождаем память для карты
         PostQuitMessage(0);
+        break;
+    case WM_MOUSEMOVE:
+        // Обновляем позицию курсора
+        cursorPos.x = LOWORD(lParam);
+        cursorPos.y = HIWORD(lParam);
+        InvalidateRect(hwnd, NULL, TRUE); // Запрашиваем перерисовку
         break;
     default:
         return DefWindowProc(hwnd, uMsg, wParam, lParam);
@@ -51,7 +76,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
     return 0;
 }
 
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nShowCmd) {
+int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR, int nShowCmd) {
     GdiplusStartupInput gdiplusStartupInput;
     ULONG_PTR gdiplusToken;
     GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
@@ -73,7 +98,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nShowCmd) {
 
     ShowWindow(hwnd, nShowCmd);
 
-    // Main message loop
+    // Основной цикл сообщений
     MSG msg;
     while (GetMessage(&msg, NULL, 0, 0)) {
         TranslateMessage(&msg);
