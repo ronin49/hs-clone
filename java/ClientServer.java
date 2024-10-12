@@ -11,6 +11,27 @@ public class ClientServer {
         int port = 8345;  // Порт, на котором работает сервер
 
         try (Socket socket = new Socket(hostname, port)) {
+            // Ввод логина для подключения
+            System.out.println("Напиши логин для подключения");
+            Scanner login = new Scanner(System.in);
+            String loginKey = login.nextLine();
+            // Отправка логина для подключения
+            PrintWriter loginOut = new PrintWriter(socket.getOutputStream(), true);
+            loginOut.println(loginKey);
+
+            //Получение логина от сервера
+            BufferedReader getServerLogin = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            String serverLogin = getServerLogin.readLine();
+
+            // Проверка на существование логина
+            if (!serverLogin.equals(loginKey)){
+                System.out.println("Вы ввели неправельный логин, такого логина не существует");
+                socket.close();
+                loginOut.close();
+            } else {
+                System.out.println("Вы подключились!");
+            }
+
             while (true){
                 PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
                 BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
