@@ -3,38 +3,42 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+
 import java.util.Scanner;
 
-public class ClientServer {
+public class Client1 {
     public static void main(String[] args) {
         String hostname = "localhost";  // Имя хоста или IP-адрес сервера
         int port = 8345;  // Порт, на котором работает сервер
 
         try (Socket socket = new Socket(hostname, port)) {
             // Ввод логина для подключения
-            System.out.println("Напиши логин для подключения");
-            Scanner login = new Scanner(System.in);
-            String loginKey = login.nextLine();
-            // Отправка логина для подключения
+            System.out.println("Напиши логин для подключения:");
+            Scanner scannerLogin = new Scanner(System.in);
+            String login = scannerLogin.nextLine();
+            // Отправка логина на проверку
             PrintWriter loginOut = new PrintWriter(socket.getOutputStream(), true);
-            loginOut.println(loginKey);
+            loginOut.println(login);
 
-            //Получение логина от сервера
-            BufferedReader getServerLogin = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            String serverLogin = getServerLogin.readLine();
+            //Получение ответа от сервера
+            BufferedReader answerFromServer = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            String serverAnswer = answerFromServer.readLine();
 
             // Проверка на существование логина
-            if (!serverLogin.equals(loginKey)){
-                System.out.println("Вы ввели неправельный логин, такого логина не существует");
+            if (serverAnswer.equals("Вы подключились!")){
+                System.out.println(serverAnswer);
+            } else if (serverAnswer.equals("Вы ввели неправельный логин")){
+                System.out.println(serverAnswer);
                 socket.close();
                 loginOut.close();
-            } else {
-                System.out.println("Вы подключились!");
             }
 
+            // Основная логика
+            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+
             while (true){
-                PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
                 // Отправка сообщения на сервер
                 Scanner sc = new Scanner(System.in);
