@@ -1,3 +1,4 @@
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -28,7 +29,7 @@ public class Client2 {
                 System.out.println(serverAnswer);
             } else if (serverAnswer.equals("Вы ввели неправельный логин")){
                 System.out.println(serverAnswer);
-                socket.close();
+                //socket.close();
                 loginOut.close();
             }
 
@@ -36,28 +37,22 @@ public class Client2 {
             PrintWriter out = new PrintWriter(socket.getOutputStream(),true);
             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
-            while(true){
-                // Чтение сообщения от сервера
-                String messageIn = in.readLine();
-                if (messageIn.equals("null")){
-                    break;
-                }
-                System.out.println(messageIn);
+            ClientThreadRead clientThreadRead = new ClientThreadRead(in,"Клиент 1");
+            ClientThreadSend clientThreadSend = new ClientThreadSend(out);
+            clientThreadRead.start();
+            clientThreadSend.start();
+            clientThreadRead.join();
+            clientThreadSend.join();
 
-                // Отправка Сообщения на сервер
-                Scanner sendMessage = new Scanner(System.in);
-                String messageOut = sendMessage.nextLine();
-                if(messageOut.equals("stop")){
-                    break;
-                } else {
-                    out.println(messageOut);
-                }
-            }
 
         } catch (IOException e) {
             System.out.println("Ошибка клиента: " + e.getMessage());
         } catch (NullPointerException e) {
             System.out.println("Ошибка, сервер не работает");
+        } catch (IndexOutOfBoundsException e){
+            System.out.println(e.getMessage());
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
     }
 }
