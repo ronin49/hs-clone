@@ -33,16 +33,28 @@ public class Client1 {
                 loginOut.close();
             }
 
+            // Чтение ответа, кто будет ходить первым
+            String message = answerFromServer.readLine();
+            System.out.println(message);
             // Основная логика
             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            // Потоки для чтения и отправки сообщений
+            ClientThreadRead clientThreadRead = new ClientThreadRead(in);
+            ClientThreadSend clientThreadSend = new ClientThreadSend(out,"Клиент 1");
 
-            ClientThreadRead clientThreadRead = new ClientThreadRead(in,"Клиент 2");
-            ClientThreadSend clientThreadSend = new ClientThreadSend(out);
-            clientThreadRead.start();
-            clientThreadSend.start();
-            clientThreadRead.join();
-            clientThreadSend.join();
+            if (message.equals("Вы ходите первым!")) {
+                while(true) {
+                    clientThreadSend.run();
+                    clientThreadRead.run();
+                }
+            } else {
+                while (true) {
+                    clientThreadRead.run();
+                    clientThreadSend.run();
+                }
+            }
+
 
         } catch (IOException e) {
             System.out.println("Ошибка клиента: " + e.getMessage());
@@ -50,8 +62,8 @@ public class Client1 {
             System.out.println("Ошибка, сервер не работает");
         } catch (IndexOutOfBoundsException e){
             System.out.println(e.getMessage());
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+//        } catch (InterruptedException e) {
+//            throw new RuntimeException(e);
         }
     }
 }

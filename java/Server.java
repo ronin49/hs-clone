@@ -3,6 +3,7 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
+import java.util.Random;
 
 
 public class Server extends Thread{
@@ -43,23 +44,59 @@ public class Server extends Thread{
                 client2.close();
             }
 
-            // Потоки для отправки и получения данных
+            //
             if (serverSocket.isClosed()){
                 client1.close();
                 client2.close();
             }
+            // Классы для отправки и получения данных
             BufferedReader in1 = new BufferedReader(new InputStreamReader(client1.getInputStream()));
             BufferedReader in2 = new BufferedReader(new InputStreamReader(client2.getInputStream()));
             PrintWriter out1 = new PrintWriter(client1.getOutputStream(), true);
             PrintWriter out2 = new PrintWriter(client2.getOutputStream(), true);
 
-
+            // Потоки
             ServerThread thread1 = new ServerThread(in1, out2);
             ServerThread thread2 = new ServerThread(in2, out1);
-            thread1.start();
-            thread2.start();
-            thread1.join();
-            thread2.join();
+
+            // Решение, кто первым будет ходить
+            PrintWriter outServer1;
+            PrintWriter outServer2;
+            Random random = new Random();
+            int randomNumber = random.nextInt(2) + 1;
+            if (randomNumber == 1){
+                outServer1 = new PrintWriter(client1.getOutputStream(), true);
+                outServer2 = new PrintWriter(client2.getOutputStream(),true);
+                outServer1.println("Вы ходите первым!");
+                outServer2.println("Клиент 1 ходит первым!");
+                thread1.start();
+                thread2.start();
+                thread1.join();
+                thread2.join();
+            } else {
+                outServer1 = new PrintWriter(client2.getOutputStream(), true);
+                outServer2 = new PrintWriter(client1.getOutputStream(), true);
+                outServer1.println("Вы ходите первым!");
+                outServer2.println("Клиент 2 ходит первым!");
+                thread1.start();
+                thread2.start();
+                thread1.join();
+                thread2.join();
+            }
+
+
+
+//            BufferedReader in1 = new BufferedReader(new InputStreamReader(client1.getInputStream()));
+//            BufferedReader in2 = new BufferedReader(new InputStreamReader(client2.getInputStream()));
+//            PrintWriter out1 = new PrintWriter(client1.getOutputStream(), true);
+//            PrintWriter out2 = new PrintWriter(client2.getOutputStream(), true);
+
+//            ServerThread thread1 = new ServerThread(in1, out2);
+//            ServerThread thread2 = new ServerThread(in2, out1);
+//            thread1.start();
+//            thread2.start();
+//            thread1.join();
+//            thread2.join();
 
         } catch (SocketException e){
             System.out.println(e.getMessage());
