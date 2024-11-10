@@ -3,15 +3,13 @@ import java.io.IOException;
 
 public class ClientThreadRead extends Thread{
     BufferedReader in;
-    String name;
 
-    public ClientThreadRead(BufferedReader in, String name) {
+    public ClientThreadRead(BufferedReader in) {
         this.in = in;
-        this.name = name;
     }
 
     public void run(){
-        while (true){
+        //while (true){
             String serverMessage = null;
             try {
                 serverMessage = in.readLine();
@@ -19,7 +17,7 @@ public class ClientThreadRead extends Thread{
                 System.out.println(e.getMessage());
             }
 
-            System.out.println(this.name + ": " + serverMessage);
-        }
+            System.out.println(serverMessage);
+        //}
     }
 }

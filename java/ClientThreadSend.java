@@ -4,16 +4,18 @@ import java.util.Scanner;
 public class ClientThreadSend extends Thread{
     private PrintWriter out;
     private Scanner sc = new Scanner(System.in);
+    private String name;
 
-    public ClientThreadSend(PrintWriter out){
+    public ClientThreadSend(PrintWriter out, String name){
         this.out = out;
+        this.name = name;
 
     }
     public void run(){
-        while(true) {
+        //while(true) {
             String message;
             message = sc.nextLine();
-            out.println(message);
-        }
+            out.println(name + ": " + message);
+        //}
     }
 }
